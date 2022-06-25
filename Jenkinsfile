@@ -19,8 +19,9 @@ pipeline {
             steps {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'docker-nexus', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                     sh 'docker login 172.22.144.1:8083 -u $USERNAME -p $PASSWORD'
-                    sh 'docker tag microservicio:latest 172.22.144.1:8083/repository/docker-private/microservicio:latest'
-                    sh 'docker push 172.22.144.1:8083/repository/docker-private/microservicio:latest'               }
+                    sh 'docker stop microservicio || true'
+                    sh 'docker run -d --rm --name microservicio -e SPRING_PROFILES_ACTIVE=dev -p 8090:8090 172.22.144.1:8083/repository/docker-private/microservicio:latest'
+                }
             }
         }
     
@@ -31,6 +32,12 @@ pipeline {
                 }
             }
         }
-    }
-
+    
+     stage('Stress') {
+           steps {
+               dir("GatlingTest"){
+                   sh 'mvn gatling:test -Dgatling.simulationClass=microservice.PingUsersSimulation'
+               }
+           }
+       }
 }
