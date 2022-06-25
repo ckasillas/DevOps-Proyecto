@@ -17,7 +17,7 @@ pipeline {
        
     stage('Push Image') {
             steps {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'docker_nexus', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'docker-nexus', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                     sh 'docker login 172.22.144.1:8083 -u $USERNAME -p $PASSWORD'
                     sh 'docker tag microservicio:latest 172.22.144.1:8083/repository/docker-private/microservicio:latest'
                     sh 'docker push 172.22.144.1:8083/repository/docker-private/microservicio:latest'               }
